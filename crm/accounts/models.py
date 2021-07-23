@@ -9,6 +9,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     """
     Custom user model 
     """
+    username = models.CharField(max_length=30, blank=True)
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
 
@@ -20,6 +21,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=100, choices=ROLECHOICES)
 
     USERNAME_FIELD = 'email'
-    #REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
