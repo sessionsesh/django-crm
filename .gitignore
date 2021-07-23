@@ -1,2 +1,9 @@
+# Virtual enviroment
 venv/
+.env
+
+# Python files and directories
+__pycache__/
+
+# IDE
 .vscode

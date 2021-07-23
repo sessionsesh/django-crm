@@ -12,17 +12,20 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 print('BASE_DIR:', BASE_DIR)
 
+# Loading enviroment variables
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(8zi#71e(kmvl7dl+!+eafbbnm*zgie*)_nv!a%s^qrn)-db5='
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -78,17 +81,12 @@ WSGI_APPLICATION = 'crm.wsgi.application'
 
 # TODO: find out how to hide this variables from source code.
 # Probably I can load them by using gitignored python script.
-os.environ['DATABASE_NAME'] = 'django-crm'
-os.environ['DATABASE_USER'] = 'postgres'
-os.environ['DATABASE_PASSWORD'] = 'postgres'
-os.environ['DATABASE_HOST'] = 'localhost'
-os.environ['DATABASE_PORT'] = '5432'
 
-db_name = os.environ['DATABASE_NAME']
-db_user = os.environ['DATABASE_USER']
-db_password = os.environ['DATABASE_PASSWORD']
-db_host = os.environ['DATABASE_HOST']
-db_port = os.environ['DATABASE_PORT']
+db_name = os.environ['DBNAME']
+db_user = os.environ['DBUSER']
+db_password = os.environ['DBPSWD']
+db_host = os.environ['DBHOST']
+db_port = os.environ['DBPORT']
 
 DATABASES = {
     'default': {
