@@ -9,7 +9,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     """
     Custom user model 
     """
+<<<<<<< HEAD
     username = models.CharField(max_length=30, blank=True)
+=======
+    username = models.CharField(max_length=80, unique=True, blank=True)
+>>>>>>> a101da8c1ed381fc58fc9eed789a1d63412e45e4
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
 
