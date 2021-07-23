@@ -90,12 +90,13 @@ db_port = os.environ['DBPORT']
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': db_name,
-        'USER': db_user,
-        'PASSWORD': db_password,
-        'HOST': db_host,
-        'PORT': db_port}
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'sqlite3.db',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': ''
+        }
 }
 
 
