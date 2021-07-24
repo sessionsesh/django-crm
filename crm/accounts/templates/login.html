@@ -9,24 +9,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Register</title>
+    <title>Login</title>
 </head>
 
 <body>
     <div class="container-caption">
         <div class="container text-center">
             {{ error_message }}
-            <form class="form-signin m-5" method="post">
+            <form class="form-signin" action="login" method="post">
                 {% csrf_token %}
-                <h1 class="h3 mb-3 font-weight-normal">Регистрация</h1>
-                {{ reg_form.email }}
-                {{ reg_form.username }}
-                {{ reg_form.password }}
-                {{ reg_form.confirm_password }}
-                {{ reg_form.role }}
 
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
-                <a href='/login'>Авторизация</a>
+                <h1 class="h3 mb-3 font-weight-normal">Авторизация</h1>
+                {{ log_form.username }}
+                {{ log_form.password }}
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Зайти</button>
+                <a href='/register'>Регистрация</a>
             </form>
         </div>
     </div>

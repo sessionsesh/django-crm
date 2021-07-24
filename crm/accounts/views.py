@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from accounts.forms import *
 from accounts.models import User, Role
 # Create your views here.
@@ -11,8 +13,8 @@ def home(request):
 def register(request):
     print('1')
     if request.user.is_authenticated:
-        # for different roles
-        pass
+        redirect('/orders')
+
     print('2')
     args = {}
     if request.method == 'GET':
@@ -33,6 +35,36 @@ def register(request):
             if (data['role'] == Role.ADM):
                 User.objects.create_admin(**reg_form.cleaned_data)
 
-            return redirect('/home')
+            return redirect('/login')
 
     return render(request, 'register.html', args)
+
+
+def login_(request):
+    if request.user.is_authenticated:
+        redirect('/orders')
+
+    args = {}
+    if request.method == 'GET':
+        args['log_form'] = UserLoginForm()
+    if request.method == 'POST':
+        data = request.POST
+        log_form = UserLoginForm(data=data)
+        args['log_form'] = log_form
+        if log_form.is_valid():
+            username = data['username']
+            password = data['password']
+            user = authenticate(request, username=username,
+                                password=password)
+            print(user)
+            if user is not None:
+                login(request, user)
+                return redirect('/orders')
+    # else
+    return render(request, 'login.html', args)
+
+
+@login_required
+def logout_(request):
+    logout(request)
+    return redirect('/login')

@@ -12,7 +12,6 @@ class OrderStatus(models.Model):
 
 
 class Order(models.Model):
-    request_date = models.DateTimeField(auto_now=True)
     creation_date = models.DateTimeField(auto_now=True)
-    orders = models.ManyToManyField(OrderType)
+    types = models.ManyToManyField(OrderType)
     statuses = models.ManyToManyField(OrderStatus)

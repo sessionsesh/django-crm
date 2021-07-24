@@ -17,11 +17,11 @@ class CustomUserManager(UserManager):
 
     def create_employee(self, username, email, password, role=Role.EMP):
         self.create_user(username, email, password,
-                         role=role, is_staff=True)
+                         role=role)
 
     def create_admin(self, username, email, password, role=Role.ADM):
         self.create_superuser(username, email, password,
-                              role=role, is_staff=True, is_superuser=True, is_admin=True)
+                              role=role, is_superuser=True, is_admin=True)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
