@@ -6,19 +6,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders</title>
+    <style>
+        body{
+            background-color: bisque;
+        }
+        .column {
+            float: left;
+            width: 50%;
+            }
+
+            /* Clear floats after the columns */
+            .row:after {
+            content: "";
+            display: table;
+            clear: both;
+            }
+    </style>
 </head>
 
 <body>
-    <p>Hello, {{ username }}!</p>
+    <p>Logged in {{ username }}!</p>
+    <!-- CUSTOMER CASE -->
     {% if role == 'cus' %}
-    {% if customer_orders_count %}
-    <p>>>> You have {{ customer_orders_count }} order(s) </p>
-    {% else %}
-    <p>>>> Your order list is empty</p>
-    {% endif %}
+        {% if customer_orders_count %}
+            <p>>>> You have {{ customer_orders_count }} order(s) </p>
+        {% else %}
+            <p>>>> Your order list is empty</p>
+        {% endif %}
     <ul>
         {% for order in customer_orders %}
-        <li>{{ order.customer_telling }}</li>
+            <li>{{ order.customer_telling }}</li>
         {% endfor %}
     </ul>
     <form method='post'>
@@ -27,19 +44,76 @@
         <input type='submit' value='Tell us!!!'>
     </form>
     {% endif %}
+    <!-- END OF CUSTOMER CASE -->
 
+    <!-- EMPLOYEE CASE -->
     {% if role == 'emp' %}
-    <p>Hello, employee! Time to work.</p>
-    <ul>
-        {% for order in customer_orders %}
-        <li> {{order.customer_telling }}</br>
-            {{ order.customer.username }}</li>
-        {% endfor %}
-    </ul>
+        <p>Hello, employee! Time to work.</p>
+
+
+        <div class='row'>
+            <div class='column' style="background-color: azure;">
+            <div class='filters'>
+                Only date filters available.</br>
+                From <a href="#">Begin_date</a> to <a href="#">End_date</a>
+            </div>
+            <p>There is some orders, that customers have left</p>
+                <!-- dicts with form mapping -->
+                <ul>
+                    {% for form, order in order_and_its_form.items %}
+                        <li style='padding:0 0 25pt 0'> 
+                            
+                            Customer "{{ order.customer.username }}" said: {{ order.customer_telling }} </br>
+                            <p style='margin:0 0 0 0'><u>Info about the Order:</u></p>
+                            <p style='margin:0 0 0 0'>It was created: {{ order.creation_date }}</p>
+                            <p style='margin:0 0 0 0'>Its type: {{ order.types }}</p>
+                            <p style='margin:0 0 0 0'></p>
+
+                            <p style='margin:0 0 0 0'><u>What can you do:</u></p>
+                            {{ form.order_type }} </br>
+                            {{ form.order_status }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class='column' style="background-color: cornsilk;">
+            {% if choosen_orders_and_its_form %}
+                <div class='filters'>
+                    Filters</br>
+                    From <a href="#">Begin_date</a> to <a href="#">End_date</a>
+                </div>
+                <p>There is some orders, that you have choosen</p>
+                <!-- dicts with form mapping -->
+                <ul>
+                    {% for form, order in choosen_orders_and_its_form.dict %}
+                        <li style='padding:0 0 25pt 0'> 
+                            
+                            Customer "{{ order.customer.username }}" said: {{ order.customer_telling }} </br>
+                            <p style='margin:0 0 0 0'><u>Info about the Order:</u></p>
+                            <p style='margin:0 0 0 0'>It was created: {{ order.creation_date }}</p>
+                            <p style='margin:0 0 0 0'>Its type: {{ order.types }}</p>
+                            <p style='margin:0 0 0 0'></p>
+
+                            <p style='margin:0 0 0 0'><u>What can you do:</u></p>
+                            {{ form.order_type }} </br>
+                            {{ form.order_status }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            {% else %}
+                <p>You haven't choosen any order from our customers!</p>
+                <p>To choose one change order type for any order in forms on the left side of the monitor</p>
+                <p>You can't see orders, that another employee has taken. So, don't worry about it.</p>
+                <p>Don't forget about filters!</p>
+            {% endif %}
+            </div>
+        </div>
     {% endif %}
+    <!-- END OF EMPLOYEE CASE-->
 
     {% if role == 'adm' %}
-    <p>Hello, admin!</p>
+        <p>Hello, admin!</p>
     {% endif %}
 
     <a href='/logout'>Log out</button>
