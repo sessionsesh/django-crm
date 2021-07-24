@@ -5,6 +5,19 @@ from accounts.models import User
 
 
 class UserTestCase(TestCase):
+
+    def test_roles_creation(self):
+        User.objects.create_customer(
+            username='customer', email='customer@cmr.com', password='customer')
+
+        User.objects.create_employee(
+            username='employee', email='employee@cmr.com', password='employee')
+
+        User.objects.create_admin(
+            username='admin', email='admin@cmr.com', password='admin')
+
+        self.assertEqual(User.objects.count(), 3)
+
     def test_user_create_delete(self):
         # Check for correct creation
         for i in range(10):
