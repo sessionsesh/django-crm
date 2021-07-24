@@ -9,7 +9,9 @@
     <style>
         body{
             background-color: bisque;
-            
+
+            /* for phone customer */
+            position: relative; 
         }
         .column {
             float: left;
@@ -25,14 +27,20 @@
         .customer{
             align-items: center;
         }
+        .phone_customer{
+            font-size: large;
+            position: absolute;
+            top:0px;
+            right:0px;
+        }
     </style>
 </head>
 
 <body>
-    <p>Logged in {{ username }}!</p>
+    <p>Logged in {{ user.username }}!</p>
     <!-- CUSTOMER CASE -->
     <div class='customer'>
-        {% if role == 'cus' %}
+        {% if user.role == 'cus' %}
             {% if customer_orders_count %}
                 <p>>>> You have {{ customer_orders_count }} order(s) </p>
             {% else %}
@@ -42,21 +50,24 @@
             {% for order in customer_orders %}
                 <li>What? : {{ order.customer_telling }}</br>
                     When? : {{ order.creation_date}} </br>
-                    Status? : {{ order.status }}
+                    Type? : {{ order.order_type.order_type }}</br>
+                    Status? : {{ order.order_status.order_status }}</br>
+                    <a href='/delete/orders/{{ order.pk }}'>Delete this request</a>
                 </li>
             {% endfor %}
         </ul>
         <form method='post'>
             {% csrf_token %}
             {{ happened_form.what_happened }}
-            <input type='submit' value='Tell us!!!'>
+
+            <input type='submit' name='tell_us' value='Tell us!!!'>
         </form>
     </div>
     {% endif %}
     <!-- END OF CUSTOMER CASE -->
 
     <!-- EMPLOYEE CASE -->
-    {% if role == 'emp' %}
+    {% if user.role == 'emp' %}
         <p>Hello, employee! Time to work.</p>
         <div class='row'>
             <!-- LEFT COLUMN -->
@@ -75,8 +86,8 @@
                                     Customer "{{ order.customer.username }}" said: {{ order.customer_telling }} </br>
                                     <p style='margin:0 0 0 0'><u>Info about the Order:</u></p>
                                     <p style='margin:0 0 0 0'>It was created: {{ order.creation_date }}</p>
-                                    <p style='margin:0 0 0 0'>Its type: {{ order.types.all }}</p>
-                                    <p style='margin:0 0 0 0'>Its status: {{ order.status.all }}</p>
+                                    <p style='margin:0 0 0 0'>Its type: {{ order.order_type.order_type }}</p>
+                                    <p style='margin:0 0 0 0'>Its status: {{ order.order_status.order_status }}</p>
                                     <p style='margin:0 0 0 0'></p>
 
                                     <p style='margin:0 0 0 0'><u>What can you do:</u></p>
@@ -85,7 +96,7 @@
                                         {{ form.order_type }} </br>
                                         {{ form.order_status }}
                                         <input name='order_pk' type='hidden' value='{{ order.pk }}'>
-                                        <input type='submit' value='Take the order'>
+                                        <input type='submit' name='change_order' value='Take the order'>
                                     </form>
                                 </li>
                             {% endfor %}
@@ -114,8 +125,8 @@
                             Customer "{{ order.customer.username }}" said: {{ order.customer_telling }} </br>
                             <p style='margin:0 0 0 0'><u>Info about the Order:</u></p>
                             <p style='margin:0 0 0 0'>It was created: {{ order.creation_date }}</p>
-                            <p style='margin:0 0 0 0'>Its type: {{ order.types.all }}</p>
-                            <p style='margin:0 0 0 0'>Its status: {{ order.status.all }}</p>
+                            <p style='margin:0 0 0 0'>Its type: {{ order.order_type.order_type }}</p>
+                            <p style='margin:0 0 0 0'>Its status: {{ order.order_status.order_status }}</p>
                             <p style='margin:0 0 0 0'></p>
 
                             <p style='margin:0 0 0 0'><u>What can you do:</u></p>
@@ -124,7 +135,7 @@
                                 {{ form.order_type }} </br>
                                 {{ form.order_status }}
                                 <input name='order_pk' type='hidden' value='{{ order.pk }}'>
-                                <input type='submit' value='Change the order'>
+                                <input type='submit' name='change_order' value='Change the order'>
                             </form>
                         </li>
                     {% endfor %}
@@ -139,10 +150,23 @@
             </div>
             <!-- END OF RIGHT COLUMN -->
         </div>
+    <div class='phone_customer'>
+        <form method='post' action='/create_by_phone_number'>
+            <div>
+                {% csrf_token %}
+                <p style='margin: 0 0 0 0'>If you are being called </br>you can create a new account for the customer </br>and automatically create a new order </p>
+                <input type='text' name='phone_number' placeholder="number">
+                <input type='text' name='what_happened' placeholder="what happened with customer">
+                <input type='hidden' name=employee_pk value='{{ user.pk }}'>
+                <input type='submit' name=phone_button value='Create'>
+            </div>
+        </form>
+    </div>
     {% endif %}
+
     <!-- END OF EMPLOYEE CASE-->
 
-    {% if role == 'adm' %}
+    {% if user.role == 'adm' %}
         <p>Hello, admin!</p>
     {% endif %}
 

@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from accounts.views import home, register, login_, logout_
-from orders.views import orders
+from orders.views import orders, delete_order, create_customer_create_order
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,5 +24,8 @@ urlpatterns = [
     path('register/', register),
     path('orders/', orders),
     path('login', login_),
-    path('logout', logout_)
+    path('logout', logout_),
+    path('delete/orders/<ID>', delete_order),
+    # path(''),
+    path('create_by_phone_number', create_customer_create_order),
 ]
