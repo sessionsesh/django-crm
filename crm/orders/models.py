@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import User
 
 # Create your models here.
 
@@ -12,6 +13,13 @@ class OrderStatus(models.Model):
 
 
 class Order(models.Model):
+    customer = models.ForeignKey(
+        User, related_name='customer', on_delete=models.DO_NOTHING, null=False, blank=False)
+
+    employee = models.ForeignKey(
+        User, related_name='employee', on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    customer_telling = models.CharField(max_length=511, blank=True)
     creation_date = models.DateTimeField(auto_now=True)
     types = models.ManyToManyField(OrderType)
     statuses = models.ManyToManyField(OrderStatus)

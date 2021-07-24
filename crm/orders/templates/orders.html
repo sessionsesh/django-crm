@@ -9,16 +9,41 @@
 </head>
 
 <body>
-    {% if role == {{ cus }}%}
-    <p>Your orders</p>
+    <p>Hello, {{ username }}!</p>
+    {% if role == 'cus' %}
+    {% if customer_orders_count %}
+    <p>>>> You have {{ customer_orders_count }} order(s) </p>
+    {% else %}
+    <p>>>> Your order list is empty</p>
+    {% endif %}
     <ul>
-        <li>Order (type, status)</li>
+        {% for order in customer_orders %}
+        <li>{{ order.customer_telling }}</li>
+        {% endfor %}
     </ul>
-    <form>
-        <label for='topic'>Тема обращения</label>
-        <input type="text" id='topic'>
+    <form method='post'>
+        {% csrf_token %}
+        {{ happened_form.what_happened }}
+        <input type='submit' value='Tell us!!!'>
     </form>
     {% endif %}
+
+    {% if role == 'emp' %}
+    <p>Hello, employee! Time to work.</p>
+    <ul>
+        {% for order in customer_orders %}
+        <li> {{order.customer_telling }}</br>
+            {{ order.customer.username }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if role == 'adm' %}
+    <p>Hello, admin!</p>
+    {% endif %}
+
+    <a href='/logout'>Log out</button>
+
 </body>
 
 </html>
