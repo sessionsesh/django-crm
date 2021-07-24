@@ -39,6 +39,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     join_date = models.DateTimeField(auto_now_add=True)
     role = models.CharField(max_length=100, choices=Role.choices)
 
+    phone_number = models.CharField(max_length=255, unique=True, null=True) # for phone customers
+    telegram_id = models.CharField(max_length=255, unique=True, null=True)  # for telegram integration
+
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 

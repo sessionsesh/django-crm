@@ -9,40 +9,49 @@
     <style>
         body{
             background-color: bisque;
+            
         }
         .column {
             float: left;
             width: 50%;
-            }
+        }
 
             /* Clear floats after the columns */
-            .row:after {
-            content: "";
-            display: table;
-            clear: both;
-            }
+        .row:after {
+        content: "";
+        display: table;
+        clear: both;
+        }
+        .customer{
+            align-items: center;
+        }
     </style>
 </head>
 
 <body>
     <p>Logged in {{ username }}!</p>
     <!-- CUSTOMER CASE -->
-    {% if role == 'cus' %}
-        {% if customer_orders_count %}
-            <p>>>> You have {{ customer_orders_count }} order(s) </p>
-        {% else %}
-            <p>>>> Your order list is empty</p>
-        {% endif %}
-    <ul>
-        {% for order in customer_orders %}
-            <li>{{ order.customer_telling }}</li>
-        {% endfor %}
-    </ul>
-    <form method='post'>
-        {% csrf_token %}
-        {{ happened_form.what_happened }}
-        <input type='submit' value='Tell us!!!'>
-    </form>
+    <div class='customer'>
+        {% if role == 'cus' %}
+            {% if customer_orders_count %}
+                <p>>>> You have {{ customer_orders_count }} order(s) </p>
+            {% else %}
+                <p>>>> Your order list is empty</p>
+            {% endif %}
+        <ul>
+            {% for order in customer_orders %}
+                <li>What? : {{ order.customer_telling }}</br>
+                    When? : {{ order.creation_date}} </br>
+                    Status? : {{ order.status }}
+                </li>
+            {% endfor %}
+        </ul>
+        <form method='post'>
+            {% csrf_token %}
+            {{ happened_form.what_happened }}
+            <input type='submit' value='Tell us!!!'>
+        </form>
+    </div>
     {% endif %}
     <!-- END OF CUSTOMER CASE -->
 
@@ -52,34 +61,38 @@
         <div class='row'>
             <!-- LEFT COLUMN -->
             <div class='column' style="background-color: azure;">
-            <div class='filters'>
-                Only date filter is available</br>
-                From <a href="#">Begin_date</a> to <a href="#">End_date</a>
-            </div>
-            <p>There is some orders, that customers have left</p>
-                <!-- dicts with form mapping -->
-                <ul>
-                    {% for form, order in order_and_its_form.items %}
-                        <li style='padding:0 0 25pt 0'> 
-                            
-                            Customer "{{ order.customer.username }}" said: {{ order.customer_telling }} </br>
-                            <p style='margin:0 0 0 0'><u>Info about the Order:</u></p>
-                            <p style='margin:0 0 0 0'>It was created: {{ order.creation_date }}</p>
-                            <p style='margin:0 0 0 0'>Its type: {{ order.types.all }}</p>
-                            <p style='margin:0 0 0 0'>Its status: {{ order.status.all }}</p>
-                            <p style='margin:0 0 0 0'></p>
+                {% if order_and_its_form %}
+                    <div class='filters'>
+                        Only date filter is available</br>
+                        From <a href="#">Begin_date</a> to <a href="#">End_date</a>
+                    </div>
+                    <p>There is some orders, that customers have left</p>
+                        <!-- dicts with form mapping -->
+                        <ul>
+                            {% for form, order in order_and_its_form.items %}
+                                <li style='padding:0 0 25pt 0'> 
+                                    
+                                    Customer "{{ order.customer.username }}" said: {{ order.customer_telling }} </br>
+                                    <p style='margin:0 0 0 0'><u>Info about the Order:</u></p>
+                                    <p style='margin:0 0 0 0'>It was created: {{ order.creation_date }}</p>
+                                    <p style='margin:0 0 0 0'>Its type: {{ order.types.all }}</p>
+                                    <p style='margin:0 0 0 0'>Its status: {{ order.status.all }}</p>
+                                    <p style='margin:0 0 0 0'></p>
 
-                            <p style='margin:0 0 0 0'><u>What can you do:</u></p>
-                            <form method="POST">
-                                {% csrf_token %}
-                                {{ form.order_type }} </br>
-                                {{ form.order_status }}
-                                <input name='order_pk' type='hidden' value='{{ order.pk }}'>
-                                <input type='submit' value='Take the order'>
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
+                                    <p style='margin:0 0 0 0'><u>What can you do:</u></p>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {{ form.order_type }} </br>
+                                        {{ form.order_status }}
+                                        <input name='order_pk' type='hidden' value='{{ order.pk }}'>
+                                        <input type='submit' value='Take the order'>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                {% else %}
+                <p>Customers are inactive :(<p>
+                {% endif %}
             </div>
             <!-- ENF OF LEFT COLUMN  -->
 
