@@ -2,6 +2,7 @@ from django import forms
 
 
 class ReplyToCustomer(forms.Form):
+    # order_id = forms.IntegerField()
     order_type = forms.CharField(max_length=255)
     order_type.widget = forms.TextInput(attrs={'placeholder':'Change order type'})
 
