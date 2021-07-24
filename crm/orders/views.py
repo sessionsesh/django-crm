@@ -4,7 +4,7 @@ from orders.models import Order, OrderStatus, OrderType
 from orders.forms import OrderWhatHappened, ReplyToCustomer
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.decorators import login_required
-
+from django.db.models import Q
 
 from django.http import HttpResponse
 # Create your views here.
@@ -26,7 +26,7 @@ def orders(request):
         # EMPLOYEE CASE
         if user.role == 'emp':
             order_and_its_form = {}
-            args['customer_orders'] = Order.objects.all()
+            args['customer_orders'] = Order.objects.filter(~Q(employee=user))
             for each in args['customer_orders']:
                 form = ReplyToCustomer()
                 order_and_its_form[form] = each 
