@@ -21,5 +21,6 @@ class Order(models.Model):
 
     customer_telling = models.CharField(max_length=511, blank=True)
     creation_date = models.DateTimeField(auto_now=True)
-    types = models.ManyToManyField(OrderType)
-    statuses = models.ManyToManyField(OrderStatus)
+    order_type = models.ForeignKey(OrderType, on_delete=models.DO_NOTHING)
+    order_status = models.ForeignKey(OrderStatus, on_delete=models.DO_NOTHING)
+
