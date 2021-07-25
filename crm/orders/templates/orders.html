@@ -128,7 +128,8 @@
                             <p style='margin:0 0 0 0'>Its type: {{ order.order_type.order_type }}</p>
                             <p style='margin:0 0 0 0'>Its status: {{ order.order_status.order_status }}</p>
                             <p style='margin:0 0 0 0'></p>
-
+                            <a href='/delete/orders/{{ order.pk }}'>Delete this request</a></br>
+                            <a href='/leave/orders/{{ order.pk }}'>Leave this request</a>
                             <p style='margin:0 0 0 0'><u>What can you do:</u></p>
                             <form method="POST">
                                 {% csrf_token %}

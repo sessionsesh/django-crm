@@ -16,8 +16,8 @@ class OrderWhatHappened(forms.Form):
                                                   'class': 'form-control', 'placeholder': 'what_happened', 'required': True, 'autofocus': True})
 
 class NewCustomerNewOrder(forms.Form):
-    what_happened = forms.CharField()
+    what_happened = forms.CharField(required=True)
     what_happened.widget = forms.TextInput(attrs={})
 
-    phone_number = forms.CharField()
+    phone_number = forms.CharField(required=True)
     phone_number.widget = forms.TextInput(attrs={})

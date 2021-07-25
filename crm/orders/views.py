@@ -5,6 +5,7 @@ from orders.forms import OrderWhatHappened, ReplyToCustomer, NewCustomerNewOrder
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+import random
 
 from django.http import HttpResponse
 # Create your views here.
@@ -132,7 +133,7 @@ def orders(request):
 def delete_order(request, ID):
     if request.method == 'GET':
         order = Order.objects.get(pk=ID)
-        if order.customer == request.user:
+        if order.customer == request.user or order.employee == request.user:
             order.delete()
             return redirect('/orders')
         else:
@@ -142,15 +143,47 @@ def delete_order(request, ID):
 
 @login_required
 def leave_order(request, ID):
-    pass
+    user = request.user
+    if request.method == 'GET':
+        order = Order.objects.get(pk=ID)
+        if order.employee == request.user:
+            order.employee = None
+            order.status = OrderStatus.objects.filter(order_status='Open').first()
+            order.save()
+            return redirect('/orders')
+        else:
+            return HttpResponse('You don\'t have permission to do this!')
+    else:
+        return HttpResponse("It should be GET request. Not POST.")
 
 @login_required
 def create_customer_create_order(request):
+    user = request.user
     if request.method == 'POST':
         data = request.POST
-        if not 'phone_customer' in data:
-            pass
+        if not 'phone_button' in data:
+            return HttpResponse('Wrong button for POST message')
         else:
-            # create customer and map order to him and also map yourself to the order
-            pass
-        return HttpResponse('create_customer_create_order')
+            # Creating a customer and mapping an order to him and also mapping employee executing the request to the order
+            cus_form = NewCustomerNewOrder(data=data)
+            if cus_form.is_valid():
+                phone_number = data['phone_number']
+                what_happened = data['what_happened']
+                employee_pk = data['employee_pk']
+
+                hash = random.getrandbits
+                customer = User(username=hash(32), email=hash(32), password=hash(32), phone_number=phone_number)
+                customer.save()
+
+                orderType = OrderType.objects.create
+                orderStatus = OrderStatus.objects.create
+                order = Order.objects.create(customer_telling=what_happened,
+                                             customer=customer,
+                                             employee=user,
+                                             order_type=orderType(order_type='UnderReview'),
+                                             order_status=orderStatus(order_status='InWork'))
+                order.save()
+                return redirect('/orders')
+            else:
+                print(cus_form.errors)
+                return HttpResponse(cus_form.errors)
