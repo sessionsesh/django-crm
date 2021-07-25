@@ -235,7 +235,7 @@
         <form method='post' action='/create_by_phone_number'>
             <div>
                 {% csrf_token %}
-                <p style='margin: 0 0 0 0'>If you are being called </br>you can create a new account for the customer </br>and automatically create a new order </p>
+                <p style='margin: 0 0 0 0'>If you are being called </br>you can create a new order for the customer</p>
                 <input type='text' name='phone_number' placeholder="number">
                 <input type='text' name='what_happened' placeholder="what happened with customer">
                 <input type='hidden' name=employee_pk value='{{ user.pk }}'>

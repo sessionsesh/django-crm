@@ -54,6 +54,9 @@ def orders(request):
                                                      ('order_status__order_status__icontains', orderStatus),
                                                      ('order_type__order_type__icontains', orderType)))
             else:
+                if (startDate and endDate):
+                    emp_orders = Order.objects.filter(Q(('creation_date__range', [startDate, endDate]),
+                                                     ('employee', user)))
                 if orderStatus and orderType: 
                     emp_orders = Order.objects.filter(Q(
                                         ('employee', user),

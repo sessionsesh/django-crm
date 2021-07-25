@@ -7,3 +7,6 @@ __pycache__/
 
 # IDE
 .vscode
+
+# shitty wizards
+telegram-notifications/
