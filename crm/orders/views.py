@@ -20,11 +20,18 @@ def orders(request):
 
     args = {}
 
+    # GET
     if request.method == 'GET':
+        GET = request.GET
         args['user'] = user
 
         # EMPLOYEE CASE
         if user.role == 'emp':
+            # FILTER SECTION
+            startDate = GET.get('startDate')
+            endDate = GET.get('endDate')
+            # END OF FILTER SECTION
+
             order_and_its_form = {}
             args['customer_orders'] = Order.objects.filter(~Q(employee=user))
             for each in args['customer_orders']:
@@ -34,7 +41,13 @@ def orders(request):
 
             # Get list of taken orders by current employee
             choosen_orders_and_its_form = {}
-            emp_orders = Order.objects.filter(employee=user)
+
+            # applying date filter
+            if(startDate and endDate):
+                emp_orders = Order.objects.filter(creation_date__range=[startDate, endDate], employee= user)
+            else:
+                emp_orders = Order.objects.filter(employee=user)
+
             for each in emp_orders:
                 # print(each.types.all())
                 form = ReplyToCustomer()
@@ -50,7 +63,9 @@ def orders(request):
         # END OF CUSTOMER CASE
 
         return render(request, 'orders.html', args)
+    # END OF GET
 
+    # POST
     if request.method == 'POST':
         data = request.POST
         if not 'change_order' in data:
@@ -127,6 +142,7 @@ def orders(request):
                     customer=user, customer_telling=data['what_happened'], order_status=orderStatus, order_type=orderType)
                 return redirect('/orders')
         # END OF CUSTOMER CASE
+    # END OF POST
     return redirect('/home')
 
 @login_required

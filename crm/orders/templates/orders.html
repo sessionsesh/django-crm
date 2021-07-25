@@ -34,6 +34,35 @@
             right:0px;
         }
     </style>
+
+    <script>
+        var startDate = null
+        var endDate = null
+
+        function getStartDate(object){
+            startDate = object.value
+        }
+
+        function getEndDate(object){
+            endDate = object.value
+            dateFilterRequest()
+        }
+
+        function resetFilters(){
+            window.location.search = '';
+        }
+    </script>
+
+    <script>
+        var request = '/orders?'
+        var and = '&'
+        function dateFilterRequest(){
+            request += "startDate=" + startDate + and + "endDate=" + endDate + and
+            window.location.href = request  // is there any difference? : window.location.search
+            request = '/orders?'
+        }
+
+    </script>
 </head>
 
 <body>
@@ -109,11 +138,23 @@
 
             <!-- RIGHT COLUMN -->
             <div class='column' style="background-color: cornsilk;">
-            {% if choosen_orders_and_its_form %}
-                <div class='filters'>
-                    All filters are available</br>
-                    From <a href="#">Begin_date</a> to <a href="#"></a> Type Status
+            <div class='filters'>
+                Filters
+                <div class='date_filter'>
+                    <input type='date' id='start_date' name='start_date' onchange='getStartDate(this)'>
+                    <input type='date' id='end_date' name='end_date' onchange='getEndDate(this)'>
                 </div>
+                <div class='type_filter'>
+                    <input type='text' id='order_type' placeholder="Order type">
+                </div>
+                <div class='status_filter'>
+                    <input type='text' id='order_status' placeholder="Order status">
+                </div>
+                <div class='reset_filters'>
+                    <button id='reset_filters' onclick='resetFilters()'>Reset filters</button>
+                </div>
+            </div>
+            {% if choosen_orders_and_its_form %}
                 <p>There is some orders, that you have choosen</p>
                 <!-- dicts with form mapping -->
                 {% for each in customer_orders %}
