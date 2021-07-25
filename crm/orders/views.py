@@ -30,6 +30,8 @@ def orders(request):
             # FILTER SECTION
             startDate = GET.get('startDate')
             endDate = GET.get('endDate')
+            orderType = GET.get('orderType')
+            orderStatus = GET.get('orderStatus')    
             # END OF FILTER SECTION
 
             order_and_its_form = {}
@@ -42,11 +44,33 @@ def orders(request):
             # Get list of taken orders by current employee
             choosen_orders_and_its_form = {}
 
-            # applying date filter
-            if(startDate and endDate):
-                emp_orders = Order.objects.filter(creation_date__range=[startDate, endDate], employee= user)
+            print('XXX', startDate, endDate, orderStatus, orderType)
+            ostatus = OrderStatus.objects.filter
+            otype = OrderType.objects.filter
+            # FILTERS APPLYING
+            if((startDate and endDate) and orderStatus and orderType):  # all filters
+                emp_orders = Order.objects.filter(Q(('creation_date__range', [startDate, endDate]),
+                                                     ('employee', user),
+                                                     ('order_status__order_status__icontains', orderStatus),
+                                                     ('order_type__order_type__icontains', orderType)))
             else:
-                emp_orders = Order.objects.filter(employee=user)
+                if orderStatus and orderType: 
+                    emp_orders = Order.objects.filter(Q(
+                                        ('employee', user),
+                                        ('order_status__order_status__icontains', orderStatus),
+                                        ('order_type__order_type__icontains', orderType)))
+                if orderStatus:
+                    emp_orders = Order.objects.filter(Q(
+                                        ('employee', user),
+                                        ('order_status__order_status__icontains', orderStatus)))
+                if orderType:
+                    emp_orders = Order.objects.filter(Q(
+                                        ('employee', user),
+                                        ('order_type__order_type__icontains', orderType)))
+
+                if not (startDate and endDate) and not orderStatus and not orderType:
+                    emp_orders = Order.objects.filter(employee=user)
+            # END OF FILTERS APPLYING
 
             for each in emp_orders:
                 # print(each.types.all())

@@ -36,30 +36,66 @@
     </style>
 
     <script>
-        var startDate = null
-        var endDate = null
-
+    /** 
+     * Space for getting filters parameters
+     */
+        var startDate = ''
+        var endDate = ''
+        var orderStatus = ''
+        var orderType = ''
+        
         function getStartDate(object){
             startDate = object.value
         }
 
         function getEndDate(object){
             endDate = object.value
-            dateFilterRequest()
+            //dateFilterRequest()
+        }
+
+        function getOrderStatus(object){
+            orderStatus = object.value
+        }
+
+        function getOrderType(object){
+            orderType = object.value
+        }
+
+
+    </script>
+
+    <script>
+    /**
+     * Space for applying filter parameters
+     */
+        class FilterRequest{
+            request = '?'
+            and = '&'
+            constructor(startDate='', endDate='', orderStatus='', orderType=''){
+                this.startDate = startDate
+                this.endDate = endDate
+                this.orderStatus = orderStatus
+                this.orderType = orderType;
+            }
+            
+            generateQueryString() {
+                var _request = this.request
+                return _request + 'startDate=' + startDate + this.and + 'endDate=' + endDate + this.and 
+                                + 'orderStatus=' + orderStatus + this.and + 'orderType=' + orderType + this.and
+            }
+
+            makeQuery(){
+                window.location.href = generateQueryString()
+            }
         }
 
         function resetFilters(){
             window.location.search = '';
         }
-    </script>
 
-    <script>
-        var request = '/orders?'
-        var and = '&'
-        function dateFilterRequest(){
-            request += "startDate=" + startDate + and + "endDate=" + endDate + and
-            window.location.href = request  // is there any difference? : window.location.search
-            request = '/orders?'
+        filterRequest = new FilterRequest(startDate, endDate, orderStatus, orderType)
+        function makeQuery(){
+            window.location.href = filterRequest.generateQueryString()
         }
 
     </script>
@@ -102,10 +138,6 @@
             <!-- LEFT COLUMN -->
             <div class='column' style="background-color: azure;">
                 {% if order_and_its_form %}
-                    <div class='filters'>
-                        Only date filter is available</br>
-                        From <a href="#">Begin_date</a> to <a href="#">End_date</a>
-                    </div>
                     <p>There is some orders, that customers have left</p>
                         <!-- dicts with form mapping -->
                         <ul>
@@ -135,8 +167,9 @@
                 {% endif %}
             </div>
             <!-- ENF OF LEFT COLUMN  -->
+            
 
-            <!-- RIGHT COLUMN -->
+            <!-- FILTER SECTION -->
             <div class='column' style="background-color: cornsilk;">
             <div class='filters'>
                 Filters
@@ -145,15 +178,21 @@
                     <input type='date' id='end_date' name='end_date' onchange='getEndDate(this)'>
                 </div>
                 <div class='type_filter'>
-                    <input type='text' id='order_type' placeholder="Order type">
+                    <input type='text' id='order_type' placeholder="Order type", onchange='getOrderType(this)'>
                 </div>
                 <div class='status_filter'>
-                    <input type='text' id='order_status' placeholder="Order status">
+                    <input type='text' id='order_status' placeholder="Order status" onchange="getOrderStatus(this)">
+                </div>
+                <div class='apply_filters'>
+                    <button id='button_apply_filters' onclick='makeQuery()'>Apply filters</button>
                 </div>
                 <div class='reset_filters'>
                     <button id='reset_filters' onclick='resetFilters()'>Reset filters</button>
                 </div>
             </div>
+            <!-- END OF FILTER SECTION  -->
+
+            <!-- RIGHT COLUMN -->
             {% if choosen_orders_and_its_form %}
                 <p>There is some orders, that you have choosen</p>
                 <!-- dicts with form mapping -->
