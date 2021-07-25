@@ -20,7 +20,7 @@ class Order(models.Model):
         User, related_name='employee', on_delete=models.DO_NOTHING, blank=True, null=True)
 
     customer_telling = models.CharField(max_length=511, blank=True)
-    creation_date = models.DateTimeField(auto_now=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
     order_type = models.ForeignKey(OrderType, on_delete=models.DO_NOTHING)
     order_status = models.ForeignKey(OrderStatus, on_delete=models.DO_NOTHING)
 
