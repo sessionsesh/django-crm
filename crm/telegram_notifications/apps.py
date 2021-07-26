@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 import threading as th
 import time
-
+import sys
 
 class BotLongPollThread(th.Thread):
     """
@@ -27,5 +27,8 @@ class TelegramNotificationsConfig(AppConfig):
 
     def ready(self):
         import telegram_notifications.signals   # importing signals
-        botThread = BotLongPollThread()
-        botThread.start()
+        if 'runserver' in sys.argv:
+            botThread = BotLongPollThread()
+            #botThread.start()
+
+        return super(TelegramNotificationsConfig, self).ready()
