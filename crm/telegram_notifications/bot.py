@@ -1,10 +1,12 @@
 import requests
 from dataclasses import dataclass
+import time
 """
 Module for Telegram API handling
 """
 
 
+@dataclass
 class TelegramAPI:
     """Class for keeping Telegram API urls without query string for bot functional"""
     message_url: str = 'https://api.telegram.org/bot/sendMessage'
@@ -38,16 +40,16 @@ class TelegramBot:
         self.__token = bot_token
         self.__telegram_api = TelegramAPI(bot_token)
 
-    def sendMessage(self, chatId: int, text: str):
-        parameters = {'chatId':chatId,'text':text}
+    def sendMessage(self, chatId, text):
+        parameters = {'chat_id':chatId,'text':text}
         url = QSGen.generate(self.__telegram_api.message_url, parameters)
-        
+        print(url)
         response = requests.get(url)
+        print(response.text)
         return requests.get(url)
 
     def getUpdates(self):
         url = self.__telegram_api.updates_url
-        print(url)
         response = requests.get(url)
         return response
     
@@ -55,15 +57,17 @@ class TelegramBot:
         self.listening = listening
     
 
-    def longPoll(self):
-        while(self.listening):
-            print(self.getUpdates())
+    # def longPoll(self):
+    #     while(self.listening):
+    #         print(self.getUpdates())
+    #         time.sleep(5)
+            
 
 
 
-from dotenv import load_dotenv
-from os import environ
-load_dotenv()
-bot_token = environ['BOT_TOKEN']
-bot = TelegramBot(bot_token, True)
-bot.longPoll()
+# from dotenv import load_dotenv
+# from os import environ
+# load_dotenv()
+# bot_token = environ['BOT_TOKEN']
+# bot = TelegramBot(bot_token, True)
+# bot.longPoll()
