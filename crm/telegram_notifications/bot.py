@@ -1,8 +1,12 @@
 import requests
 from dataclasses import dataclass
 import time
-from types import SimpleNamespace   # for converting json ouput into python objects
+import threading as th
 import json
+import os
+import sys
+from django.conf import settings
+from accounts.models import User
 """
 Module for Telegram API handling
 """
@@ -35,8 +39,6 @@ class QSGen:
             parameter = f'{key}={value}&'
             url += parameter
         return url
-
-
 
 class TelegramBot:
     class GetUpdatesResponseWrapper:
@@ -95,17 +97,35 @@ class TelegramBot:
         return py_list
     # END OF HIGH LEVEL METHODS
 
-    # def setListening(self, listening: bool):
-    #     self.listening = listening
+class BotLongPollThread(th.Thread):
+        """
+        Thread that handles Telegram Bot income messages
+        """
+
+        def __init__(self, bot_token, running=True, daemon=True):
+            super(BotLongPollThread, self).__init__()
+            self.telegramBot = TelegramBot(bot_token)
+            self.running = running
+            self.daemon = daemon # allows to use 'ctrl+c' to close process
+
+        def __is_user_in_db(self, chatId):
+            is_user_in_db = User.objects.filter(telegram_id=chatId).exists()
+            return is_user_in_db
     
 
-    # def longPoll(self):
-    #     while(self.listening):
-    #         print(self.getUpdates())
-    #         time.sleep(5)
-            
+        def run(self):
+            print('|Telegram notification module is running|')
+            while self.running:
+                # Getting messages from users
+                for msg in self.telegramBot.getUserMessages():
+                    chatId = msg.chat_id
+                    if self.__is_user_in_db(chatId):
+                        self.telegramBot.sendMessage(chatId, 'You already have sent your crm data to us.')
+                    else:
+                        self.telegramBot.sendMessage(chatId, 'Please, send your crm data to us.')    
 
-
+                print(self.telegramBot.getUserMessages()) 
+                time.sleep(5) # without it doesn't work
 if __name__ == "__main__":
     from dotenv import load_dotenv
     from os import environ
