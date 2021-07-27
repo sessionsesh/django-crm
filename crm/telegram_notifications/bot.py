@@ -1,6 +1,8 @@
 import requests
 from dataclasses import dataclass
 import time
+from types import SimpleNamespace   # for converting json ouput into python objects
+import json
 """
 Module for Telegram API handling
 """
@@ -34,27 +36,67 @@ class QSGen:
             url += parameter
         return url
 
+
+
 class TelegramBot:
+    class GetUpdatesResponseWrapper:
+        """Wrapper around getUpdates method to make interactions with API more user-friendly"""
+
+        def __init__(self, response):
+            self.__response_json = response.json()
+
+        def ok(self):
+            """Returns True if request was successfull, else return False."""
+            return self.__response_json['ok']
+        
+        def result(self):
+            """Returns array of dicts with each user message sent to bot.""" 
+            return self.__response_json['result']
+
+    @dataclass
+    class UserMessage:
+        """Stores main fields of message sent by a user to the bot"""
+        chat_id: int
+        first_name: str
+        username: str
+        date: int
+
     def __init__(self, bot_token, listening = False):
         self.listening = listening
         self.__token = bot_token
         self.__telegram_api = TelegramAPI(bot_token)
 
+    # LOW LEVEL METHODS
     def sendMessage(self, chatId, text):
         parameters = {'chat_id':chatId,'text':text}
         url = QSGen.generate(self.__telegram_api.message_url, parameters)
-        print(url)
         response = requests.get(url)
-        print(response.text)
         return requests.get(url)
 
     def getUpdates(self):
         url = self.__telegram_api.updates_url
         response = requests.get(url)
         return response
-    
-    def setListening(self, listening: bool):
-        self.listening = listening
+    # END OF LOW LEVEL METHODS
+
+
+    # HIGH LEVEL METHODS
+    def getUserMessages(self):
+        json_list = self.GetUpdatesResponseWrapper(self.getUpdates()).result()
+        py_list = list()
+        for each in json_list:
+            date = each['message']['date']
+            tmp_chat = each['message']['chat']
+            chat_id = tmp_chat['id']
+            username = tmp_chat['username']
+            first_name = tmp_chat['first_name'] 
+
+            py_list.append(self.UserMessage(chat_id, first_name, username, date))
+        return py_list
+    # END OF HIGH LEVEL METHODS
+
+    # def setListening(self, listening: bool):
+    #     self.listening = listening
     
 
     # def longPoll(self):
@@ -64,10 +106,10 @@ class TelegramBot:
             
 
 
-
-# from dotenv import load_dotenv
-# from os import environ
-# load_dotenv()
-# bot_token = environ['BOT_TOKEN']
-# bot = TelegramBot(bot_token, True)
-# bot.longPoll()
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    from os import environ
+    load_dotenv()
+    bot_token = environ['BOT_TOKEN']
+    bot = TelegramBot(bot_token, True)
+    print(bot.getUserMessages())
