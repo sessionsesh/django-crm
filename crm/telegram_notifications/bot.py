@@ -40,8 +40,9 @@ class QSGen:
 
         url += '?'
         for key, value in parameters.items():
-            parameter = f'{key}={value}&'
-            url += parameter
+            if value is not None:
+                parameter = f'{key}={value}&'
+                url += parameter
         return url
 
 class TelegramBot:
@@ -63,6 +64,7 @@ class TelegramBot:
     class UserMessage:
         """Stores main fields of message sent by a user to the bot"""
         chat_id: int
+        update_id: int
         first_name: str
         username: str
         date: int
@@ -80,18 +82,20 @@ class TelegramBot:
         response = requests.get(url)
         return requests.get(url)
 
-    def getUpdates(self):
-        url = self.__telegram_api.updates_url
+    def getUpdates(self, offset:int = None, limit:int = None, timeout:int = None, allowed_updates:list = None):
+        parameters = {'offset': offset, 'limit': limit, 'timeout': timeout, 'allowed_updates': allowed_updates}
+        url = QSGen.generate(self.__telegram_api.updates_url, parameters)
         response = requests.get(url)
         return response
     # END OF LOW LEVEL METHODS
 
 
     # HIGH LEVEL METHODS
-    def getUserMessages(self):
-        json_list = self.GetUpdatesResponseWrapper(self.getUpdates()).result()
+    def getUserMessages(self, offset, timeout):
+        json_list = self.GetUpdatesResponseWrapper(self.getUpdates(offset=offset, timeout=timeout)).result()
         py_list = list()
         for each in json_list:
+            update_id = each['update_id']
             date = each['message']['date']
             tmp_chat = each['message']['chat']
             chat_id = tmp_chat['id']
@@ -99,7 +103,7 @@ class TelegramBot:
             first_name = tmp_chat['first_name']
             text = each['message']['text']
 
-            py_list.append(self.UserMessage(chat_id, first_name, username, date, text))
+            py_list.append(self.UserMessage(chat_id, update_id, first_name, username, date, text))
         return py_list
     # END OF HIGH LEVEL METHODS
 
@@ -120,29 +124,42 @@ class BotLongPollThread(th.Thread):
     
 
         def run(self):
+            last_update_id = 216929435 # TODO: load from file
+            locked_chats_to_send = dict() # to avoid several replies sent to a user by the bot
+
             print('|Telegram notification module is running|')
             while self.running:
                 # Getting messages from users
-                for msg in self.telegramBot.getUserMessages():
+                for msg in self.telegramBot.getUserMessages(offset=last_update_id + 1, timeout=10):
                     chatId = msg.chat_id
-                    stamp_now = dt.now().timestamp()
-                    stamp_msg = msg.date
-                    delta_sec = 5
-                    difference = stamp_now - stamp_msg
-                    if difference < 0 and difference > -0.999999999:
+                    updateId = msg.update_id
+                    
+                    # tmp_lcts = locked_chats_to_send.copy()
+                    # for cid, stamp in tmp_lcts.items():
+                    #     if dt.now().timestamp() - stamp > 10:
+                    #         locked_chats_to_send.pop(cid) # or use del
+
+                    # Avoiding answering on all messages. Getting only last ones. Avoiding several replies to one message.
+                    if (msg.update_id > last_update_id):
+                        last_update_id = updateId
+                        # Checking if a user is mapped with chatId
                         if self.__is_user_in_db(chatId):
                             self.telegramBot.sendMessage(chatId, 'Your orders statuses still the same')
+                            print(locked_chats_to_send)
+
+                        # Mapping user if the text which was sent is equalt to a username in database
                         else:
                             user = User.objects.filter(username=msg.text)
                             if user.exists():
                                 user = user.first()
                                 user.telegram_id = chatId
                                 user.save()
-                                self.telegramBot.sendMessage(chatId, 'Please, send your crm data to us.')
+                                self.telegramBot.sendMessage(chatId, 'You are mapped.')
                             else:
                                 self.telegramBot.sendMessage(chatId, 'Please, send your crm data to us.')
+                        
+                        locked_chats_to_send[chatId] = dt.now().timestamp()
 
-                # print(self.telegramBot.getUserMessages()) 
                 time.sleep(1) # without it doesn't work
 
 if __name__ == "__main__":
