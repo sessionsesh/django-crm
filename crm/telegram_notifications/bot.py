@@ -5,8 +5,12 @@ import threading as th
 import json
 import os
 import sys
-from django.conf import settings
-from accounts.models import User
+
+if __name__ != "__main__":
+    from accounts.models import User
+
+from datetime import datetime as dt
+
 """
 Module for Telegram API handling
 """
@@ -62,6 +66,7 @@ class TelegramBot:
         first_name: str
         username: str
         date: int
+        text: str
 
     def __init__(self, bot_token, listening = False):
         self.listening = listening
@@ -91,9 +96,10 @@ class TelegramBot:
             tmp_chat = each['message']['chat']
             chat_id = tmp_chat['id']
             username = tmp_chat['username']
-            first_name = tmp_chat['first_name'] 
+            first_name = tmp_chat['first_name']
+            text = each['message']['text']
 
-            py_list.append(self.UserMessage(chat_id, first_name, username, date))
+            py_list.append(self.UserMessage(chat_id, first_name, username, date, text))
         return py_list
     # END OF HIGH LEVEL METHODS
 
@@ -119,14 +125,28 @@ class BotLongPollThread(th.Thread):
                 # Getting messages from users
                 for msg in self.telegramBot.getUserMessages():
                     chatId = msg.chat_id
-                    if self.__is_user_in_db(chatId):
-                        self.telegramBot.sendMessage(chatId, 'You already have sent your crm data to us.')
-                    else:
-                        self.telegramBot.sendMessage(chatId, 'Please, send your crm data to us.')    
+                    stamp_now = dt.now().timestamp()
+                    stamp_msg = msg.date
+                    delta_sec = 5
+                    difference = stamp_now - stamp_msg
+                    if difference < 0 and difference > -0.999999999:
+                        if self.__is_user_in_db(chatId):
+                            self.telegramBot.sendMessage(chatId, 'Your orders statuses still the same')
+                        else:
+                            user = User.objects.filter(username=msg.text)
+                            if user.exists():
+                                user = user.first()
+                                user.telegram_id = chatId
+                                user.save()
+                                self.telegramBot.sendMessage(chatId, 'Please, send your crm data to us.')
+                            else:
+                                self.telegramBot.sendMessage(chatId, 'Please, send your crm data to us.')
 
-                print(self.telegramBot.getUserMessages()) 
-                time.sleep(5) # without it doesn't work
+                # print(self.telegramBot.getUserMessages()) 
+                time.sleep(1) # without it doesn't work
+
 if __name__ == "__main__":
+    print(dt.now().timestamp())
     from dotenv import load_dotenv
     from os import environ
     load_dotenv()
